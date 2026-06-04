@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digi-Tech Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/admin.css" />
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="container">
+        <div>
+          <p class="eyebrow">Admin Panel</p>
+          <h1>Projects & Payments Dashboard</h1>
+          <p class="header-copy">Centralized operational and financial tracking for all client projects.</p>
+          <p class="signed-in-as">Signed in as <strong>{{ admin_email }}</strong></p>
+        </div>
+        <div class="header-actions">
+          <label class="view-currency-control">
+            View currency
+            <select id="dashboard-currency">
+              <option value="">All currencies</option>
+              <option value="USD">USD</option>
+              <option value="EGP">EGP</option>
+            </select>
+          </label>
+          <a class="button ghost" href="/">Back to Website</a>
+          <a class="button primary" id="export-csv-link" href="/api/admin/export.csv">Export CSV</a>
+          <a class="button primary" id="export-json-link" href="/api/admin/export.json">Export JSON</a>
+          <form action="/admin/logout" method="post">
+            <button class="button ghost" type="submit">Logout</button>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <main class="container section-stack">
+      <section class="metrics-grid">
+        <article class="metric-card">
+          <h2>Total Projects</h2>
+          <p id="total-projects" class="metric-value">0</p>
+        </article>
+        <article class="metric-card">
+          <h2>Active Projects</h2>
+          <p id="active-projects" class="metric-value">0</p>
+        </article>
+        <article class="metric-card">
+          <h2>Completed</h2>
+          <p id="completed-projects" class="metric-value">0</p>
+        </article>
+        <article class="metric-card">
+          <h2>Pending Payments</h2>
+          <p id="pending-payments" class="metric-value">0</p>
+        </article>
+        <article class="metric-card">
+          <h2>Overdue Payments</h2>
+          <p id="overdue-payments" class="metric-value danger">0</p>
+        </article>
+        <article class="metric-card">
+          <h2>Progress</h2>
+          <p id="portfolio-progress" class="metric-value">0%</p>
+        </article>
+      </section>
+
+      <section class="layout-grid">
+        <article class="panel">
+          <div class="panel-header">
+            <h2 id="form-title">Add Project</h2>
+            <p>Add a new project or edit an existing one from the table actions.</p>
+          </div>
+          <form id="project-form" class="form-grid">
+            <input type="hidden" name="project_id" id="project-id" />
+            <label>
+              Client name
+              <input name="client_name" type="text" required />
+            </label>
+            <label>
+              Project name
+              <input name="project_name" type="text" required />
+            </label>
+            <label>
+              Currency
+              <select name="currency" required>
+                <option value="USD">USD</option>
+                <option value="EGP">EGP</option>
+              </select>
+            </label>
+            <label>
+              Total price
+              <input name="total_price" type="number" min="0" step="0.01" required />
+            </label>
+            <label>
+              Paid amount
+              <input name="paid_amount" type="number" min="0" step="0.01" value="0" required />
+            </label>
+            <label>
+              Start date
+              <input name="start_date" type="date" required />
+            </label>
+            <label>
+              Deadline
+              <input name="deadline" type="date" required />
+            </label>
+            <label>
+              Status
+              <select name="status" required>
+                <option value="planned">Planned</option>
+                <option value="in_progress">In progress</option>
+                <option value="on_hold">On hold</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </label>
+            <label class="full-width">
+              Notes
+              <textarea name="notes" rows="2"></textarea>
+            </label>
+
+            <div class="milestone-wrap full-width">
+              <div class="milestone-head">
+                <h3>Payment Milestones</h3>
+                <button class="button ghost small" id="add-milestone" type="button">+ Add milestone</button>
+              </div>
+              <div id="milestones-container" class="milestone-list"></div>
+            </div>
+
+            <div class="full-width form-actions">
+              <button class="button primary" id="save-project-button" type="submit">Save Project</button>
+              <button class="button ghost" id="cancel-edit-button" type="button" hidden>Cancel Edit</button>
+              <p id="form-feedback" role="status" aria-live="polite"></p>
+            </div>
+          </form>
+        </article>
+
+        <aside class="panel">
+          <div class="panel-header">
+            <h2>Share Snapshot</h2>
+            <p>Create a quick status email draft for client and admin recipients.</p>
+          </div>
+          <form id="share-form" class="share-form">
+            <label>
+              Client email
+              <input name="client_email" type="email" placeholder="client@example.com" />
+            </label>
+            <label>
+              Admin email
+              <input name="admin_email" type="email" placeholder="admin@example.com" />
+            </label>
+            <button class="button primary" type="submit">Generate Email Draft</button>
+            <div id="share-result"></div>
+          </form>
+          <div class="upcoming-block">
+            <h3>Upcoming Deadlines (14 days)</h3>
+            <ul id="deadline-list" class="deadline-list"></ul>
+          </div>
+        </aside>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Projects Overview</h2>
+          <p>Real-time operational and financial status per project.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Project</th>
+                <th>Status</th>
+                <th>Financials</th>
+                <th>Payment Milestones</th>
+                <th>Deadline</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="projects-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <template id="milestone-template">
+      <div class="milestone-item">
+        <label>
+          Milestone title
+          <input name="milestone_title" type="text" required />
+        </label>
+        <label>
+          Amount
+          <input name="milestone_amount" type="number" min="0" step="0.01" required />
+        </label>
+        <label>
+          Due date
+          <input name="milestone_due_date" type="date" required />
+        </label>
+        <label class="checkbox">
+          <input name="milestone_paid" type="checkbox" />
+          Paid
+        </label>
+        <button class="button ghost small remove-milestone" type="button">Remove</button>
+      </div>
+    </template>
+
+    <script src="/static/admin.js"></script>
+  </body>
+</html>

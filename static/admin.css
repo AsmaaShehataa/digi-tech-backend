@@ -1,0 +1,481 @@
+:root {
+  --bg: #090d16;
+  --surface: #111829;
+  --surface-soft: #161f34;
+  --text: #edf2ff;
+  --muted: #a9b6d3;
+  --border: rgba(255, 255, 255, 0.1);
+  --primary: #5d9dff;
+  --primary-strong: #3b7ef1;
+  --danger: #ff6d7a;
+  --success: #4fd4ac;
+  --warning: #ffbe63;
+  --shadow: 0 16px 35px rgba(0, 0, 0, 0.3);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(93, 157, 255, 0.18), transparent 42%),
+    radial-gradient(circle at 88% 10%, rgba(79, 212, 172, 0.1), transparent 34%),
+    linear-gradient(180deg, #0b1020 0%, var(--bg) 45%);
+}
+
+.container {
+  width: min(100% - 2.5rem, 1250px);
+  margin-inline: auto;
+}
+
+.section-stack {
+  padding: 2rem 0 3rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-header {
+  border-bottom: 1px solid var(--border);
+  padding: 1.8rem 0 1.2rem;
+  background: rgba(9, 13, 22, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.admin-header .container {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0.4rem 0;
+  font-size: clamp(1.6rem, 4vw, 2.35rem);
+}
+
+.header-copy {
+  margin: 0;
+  max-width: 58ch;
+  color: var(--muted);
+}
+
+.signed-in-as {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: end;
+}
+
+.header-actions form {
+  margin: 0;
+}
+
+.view-currency-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  min-width: 170px;
+}
+
+.view-currency-control select {
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--surface-soft);
+  color: var(--text);
+  padding: 0.52rem 0.65rem;
+  font: inherit;
+}
+
+.button {
+  border-radius: 0.65rem;
+  border: 1px solid transparent;
+  color: var(--text);
+  text-decoration: none;
+  font: inherit;
+  font-weight: 600;
+  padding: 0.65rem 0.95rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.button.primary {
+  background: linear-gradient(125deg, var(--primary) 0%, var(--primary-strong) 100%);
+  color: #fff;
+}
+
+.button.ghost {
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.button.small {
+  padding: 0.4rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+.button.danger {
+  border-color: rgba(255, 109, 122, 0.6);
+  color: #ffdbe1;
+  background: rgba(255, 109, 122, 0.1);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.metric-card {
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  box-shadow: var(--shadow);
+  padding: 0.9rem;
+}
+
+.metric-card h2 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.87rem;
+  font-weight: 500;
+}
+
+.metric-value {
+  margin: 0.55rem 0 0;
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.metric-value.danger {
+  color: var(--danger);
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 1rem;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 0.95rem;
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+  box-shadow: var(--shadow);
+  padding: 1rem;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.panel-header p {
+  margin: 0.35rem 0 0.9rem;
+  color: var(--muted);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.89rem;
+  color: var(--muted);
+}
+
+input,
+select,
+textarea {
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--surface-soft);
+  color: var(--text);
+  padding: 0.6rem 0.7rem;
+  font: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+.milestone-wrap {
+  border: 1px dashed var(--border);
+  border-radius: 0.75rem;
+  padding: 0.8rem;
+}
+
+.milestone-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.milestone-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.milestone-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.milestone-item {
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  padding: 0.7rem;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr auto auto;
+  gap: 0.6rem;
+  align-items: end;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text);
+}
+
+.checkbox input {
+  width: 1rem;
+  height: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+#form-feedback {
+  margin: 0;
+  color: var(--muted);
+}
+
+#form-feedback.error {
+  color: var(--danger);
+}
+
+#form-feedback.success {
+  color: var(--success);
+}
+
+.share-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+#share-result {
+  border: 1px dashed var(--border);
+  border-radius: 0.65rem;
+  padding: 0.7rem;
+  color: var(--muted);
+  min-height: 3.8rem;
+}
+
+#share-result a {
+  color: var(--primary);
+}
+
+.upcoming-block {
+  margin-top: 1rem;
+}
+
+.upcoming-block h3 {
+  margin: 0 0 0.65rem;
+}
+
+.deadline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.deadline-list li {
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.55rem 0.7rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1150px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.7rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.project-main {
+  margin: 0;
+  font-weight: 600;
+}
+
+.project-sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.22rem 0.62rem;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.status-planned,
+.status-on_track {
+  color: var(--warning);
+}
+
+.status-in_progress,
+.status-upcoming {
+  color: var(--primary);
+}
+
+.status-completed {
+  color: var(--success);
+}
+
+.status-overdue {
+  color: var(--danger);
+}
+
+.status-cancelled,
+.status-on_hold {
+  color: #b7bed1;
+}
+
+.progress-track {
+  margin-top: 0.4rem;
+  width: 100%;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(120deg, var(--primary), var(--success));
+}
+
+.milestone-pill {
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  padding: 0.2rem 0.45rem;
+  margin-right: 0.25rem;
+  display: inline-block;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.empty-state {
+  color: var(--muted);
+}
+
+.actions-cell {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1200px) {
+  .metrics-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .container {
+    width: min(100% - 1.4rem, 1250px);
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-grid,
+  .full-width {
+    grid-template-columns: 1fr;
+    grid-column: span 1;
+  }
+
+  .milestone-item {
+    grid-template-columns: 1fr;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+}

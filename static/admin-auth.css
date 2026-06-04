@@ -1,0 +1,106 @@
+:root {
+  --bg: #080d17;
+  --surface: #11192c;
+  --text: #e9efff;
+  --muted: #a8b5d1;
+  --primary: #5d9dff;
+  --primary-strong: #3b7ef1;
+  --danger: #ff6d7a;
+  --border: rgba(255, 255, 255, 0.12);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 16% 10%, rgba(93, 157, 255, 0.2), transparent 42%),
+    radial-gradient(circle at 86% 0%, rgba(79, 212, 172, 0.1), transparent 34%),
+    linear-gradient(180deg, #0b1020 0%, var(--bg) 48%);
+  display: grid;
+  place-items: center;
+  padding: 1.2rem;
+}
+
+.auth-shell {
+  width: min(100%, 470px);
+}
+
+.auth-card {
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  padding: 1.25rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--primary);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0.45rem 0 0;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.helper {
+  margin: 0.55rem 0 1rem;
+  color: var(--muted);
+}
+
+.error-message {
+  margin: 0 0 0.9rem;
+  color: var(--danger);
+}
+
+.auth-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+input {
+  border: 1px solid var(--border);
+  border-radius: 0.62rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 0.62rem 0.68rem;
+  font: inherit;
+}
+
+button {
+  margin-top: 0.2rem;
+  border: 1px solid transparent;
+  border-radius: 0.62rem;
+  padding: 0.68rem 0.88rem;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(125deg, var(--primary) 0%, var(--primary-strong) 100%);
+}
+
+a {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--primary);
+  text-decoration: none;
+}

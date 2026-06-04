@@ -1,0 +1,15 @@
+[Unit]
+Description=Digi-Tech Internal Admin Service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/digi-tech
+EnvironmentFile=/etc/digi-tech/admin.env
+ExecStart=/usr/bin/python3 /var/www/digi-tech/admin_backend.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
