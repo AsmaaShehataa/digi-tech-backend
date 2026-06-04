@@ -131,8 +131,11 @@ const renderProjects = (projects) => {
   projectsTableBody.innerHTML = projects
     .map((project) => {
       const metrics = project.metrics;
+      const isCompleted = metrics.effective_status === "completed";
+      const displayDeadlineState = isCompleted ? "completed" : metrics.deadline_state;
+      const displayDaysRemaining = isCompleted ? "Completed" : `${metrics.days_remaining} day(s) remaining`;
       const statusClass = `status-${metrics.effective_status}`;
-      const deadlineClass = `status-${metrics.deadline_state}`;
+      const deadlineClass = `status-${displayDeadlineState}`;
       const milestonesHtml = project.milestones.length
         ? project.milestones.map((milestone) => renderMilestoneRow(milestone, project.currency)).join("")
         : `<span class="empty-state">No milestones set.</span>`;
@@ -161,8 +164,8 @@ const renderProjects = (projects) => {
           <td>${milestonesHtml}</td>
           <td>
             <p class="project-main">${project.deadline}</p>
-            <p class="project-sub">${metrics.days_remaining} day(s) remaining</p>
-            <span class="status-badge ${deadlineClass}">${metrics.deadline_state.replace("_", " ")}</span>
+            <p class="project-sub">${displayDaysRemaining}</p>
+            <span class="status-badge ${deadlineClass}">${displayDeadlineState.replace("_", " ")}</span>
           </td>
           <td>
             <div class="actions-cell">
@@ -176,8 +179,43 @@ const renderProjects = (projects) => {
     .join("");
 };
 
-const renderOverview = (overview) => {
-  const totals = overview.totals;
+const renderOverview = (overview, projects) => {
+  const totals = {
+    total_projects: projects.length,
+    active_projects: 0,
+    completed_projects: 0,
+    pending_payments_count: 0,
+    pending_payments_amount: 0,
+    overdue_payments_count: 0,
+    overdue_payments_amount: 0,
+    total_contract_value: 0,
+    total_paid: 0,
+    portfolio_payment_progress: 0,
+  };
+
+  projects.forEach((project) => {
+    const metrics = project.metrics;
+    totals.total_contract_value += Number(project.total_price || 0);
+    totals.total_paid += Number(project.paid_amount || 0);
+
+    if (metrics.effective_status === "completed") {
+      totals.completed_projects += 1;
+      return;
+    }
+    if (metrics.effective_status !== "cancelled") {
+      totals.active_projects += 1;
+    }
+
+    totals.pending_payments_count += Number(metrics.pending_milestones_count || 0);
+    totals.pending_payments_amount += Number(metrics.pending_milestones_amount || 0);
+    totals.overdue_payments_count += Number(metrics.overdue_milestones_count || 0);
+    totals.overdue_payments_amount += Number(metrics.overdue_milestones_amount || 0);
+  });
+
+  if (totals.total_contract_value > 0) {
+    totals.portfolio_payment_progress = ((totals.total_paid / totals.total_contract_value) * 100).toFixed(2);
+  }
+
   const currencyCode = overview.currency || "USD";
   totalProjectsEl.textContent = totals.total_projects;
   activeProjectsEl.textContent = totals.active_projects;
@@ -222,7 +260,7 @@ const refreshDashboard = async () => {
   updateExportLink();
   const [overview, projects] = await Promise.all([fetchOverview(), fetchProjects()]);
   cachedProjects = projects;
-  renderOverview(overview);
+  renderOverview(overview, projects);
   renderProjects(projects);
 };
 
