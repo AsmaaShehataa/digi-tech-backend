@@ -2,8 +2,9 @@ const projectsTableBody = document.getElementById("projects-table-body");
 const totalProjectsEl = document.getElementById("total-projects");
 const activeProjectsEl = document.getElementById("active-projects");
 const completedProjectsEl = document.getElementById("completed-projects");
-const pendingPaymentsEl = document.getElementById("pending-payments");
+const outstandingBalanceEl = document.getElementById("outstanding-balance");
 const overduePaymentsEl = document.getElementById("overdue-payments");
+const completedRevenueEl = document.getElementById("completed-revenue");
 const portfolioProgressEl = document.getElementById("portfolio-progress");
 const deadlineListEl = document.getElementById("deadline-list");
 const form = document.getElementById("project-form");
@@ -131,7 +132,7 @@ const renderProjects = (projects) => {
   projectsTableBody.innerHTML = projects
     .map((project) => {
       const metrics = project.metrics;
-      const isCompleted = metrics.effective_status === "completed";
+      const isCompleted = metrics.effective_status === "completed" || project.status === "completed";
       const displayDeadlineState = isCompleted ? "completed" : metrics.deadline_state;
       const displayDaysRemaining = isCompleted ? "Completed" : `${metrics.days_remaining} day(s) remaining`;
       const statusClass = `status-${metrics.effective_status}`;
@@ -179,49 +180,59 @@ const renderProjects = (projects) => {
     .join("");
 };
 
-const renderOverview = (overview, projects) => {
+const buildFallbackTotals = (projects) => {
   const totals = {
     total_projects: projects.length,
     active_projects: 0,
     completed_projects: 0,
-    pending_payments_count: 0,
-    pending_payments_amount: 0,
+    completed_revenue: 0,
+    outstanding_projects_count: 0,
     overdue_payments_count: 0,
     overdue_payments_amount: 0,
     total_contract_value: 0,
     total_paid: 0,
+    total_remaining: 0,
     portfolio_payment_progress: 0,
   };
 
   projects.forEach((project) => {
     const metrics = project.metrics;
+    const isCompleted = metrics.effective_status === "completed" || project.status === "completed";
     totals.total_contract_value += Number(project.total_price || 0);
     totals.total_paid += Number(project.paid_amount || 0);
+    totals.total_remaining += Number(metrics.remaining_balance || 0);
 
-    if (metrics.effective_status === "completed") {
+    if (isCompleted) {
       totals.completed_projects += 1;
+      totals.completed_revenue += Number(project.paid_amount || 0);
       return;
     }
     if (metrics.effective_status !== "cancelled") {
       totals.active_projects += 1;
+      if (Number(metrics.remaining_balance || 0) > 0) {
+        totals.outstanding_projects_count += 1;
+      }
     }
-
-    totals.pending_payments_count += Number(metrics.pending_milestones_count || 0);
-    totals.pending_payments_amount += Number(metrics.pending_milestones_amount || 0);
     totals.overdue_payments_count += Number(metrics.overdue_milestones_count || 0);
     totals.overdue_payments_amount += Number(metrics.overdue_milestones_amount || 0);
   });
 
   if (totals.total_contract_value > 0) {
-    totals.portfolio_payment_progress = ((totals.total_paid / totals.total_contract_value) * 100).toFixed(2);
+    totals.portfolio_payment_progress = Number(((totals.total_paid / totals.total_contract_value) * 100).toFixed(2));
   }
+  return totals;
+};
 
+const renderOverview = (overview, projects) => {
+  const fallbackTotals = buildFallbackTotals(projects);
+  const totals = { ...fallbackTotals, ...(overview.totals || {}) };
   const currencyCode = overview.currency || "USD";
   totalProjectsEl.textContent = totals.total_projects;
   activeProjectsEl.textContent = totals.active_projects;
   completedProjectsEl.textContent = totals.completed_projects;
-  pendingPaymentsEl.textContent = `${totals.pending_payments_count} (${formatCurrency(totals.pending_payments_amount, currencyCode)})`;
+  outstandingBalanceEl.textContent = `${totals.outstanding_projects_count} (${formatCurrency(totals.total_remaining, currencyCode)})`;
   overduePaymentsEl.textContent = `${totals.overdue_payments_count} (${formatCurrency(totals.overdue_payments_amount, currencyCode)})`;
+  completedRevenueEl.textContent = formatCurrency(totals.completed_revenue, currencyCode);
   portfolioProgressEl.textContent = `${totals.portfolio_payment_progress}%`;
 
   if (!overview.upcoming_deadlines.length) {

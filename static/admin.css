@@ -148,7 +148,7 @@ h1 {
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 0.8rem;
 }
 
@@ -448,7 +448,7 @@ th {
 
 @media (max-width: 1200px) {
   .metrics-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .layout-grid {

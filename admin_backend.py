@@ -438,6 +438,8 @@ def _build_overview(projects: list[dict[str, Any]], currency: str | None) -> dic
         "total_projects": len(projects),
         "active_projects": 0,
         "completed_projects": 0,
+        "completed_revenue": 0.0,
+        "outstanding_projects_count": 0,
         "pending_payments_count": 0,
         "pending_payments_amount": 0.0,
         "overdue_payments_count": 0,
@@ -458,8 +460,11 @@ def _build_overview(projects: list[dict[str, Any]], currency: str | None) -> dic
 
         if metrics["effective_status"] == "completed":
             totals["completed_projects"] += 1
+            totals["completed_revenue"] += project["paid_amount"]
         elif metrics["effective_status"] != "cancelled":
             totals["active_projects"] += 1
+            if metrics["remaining_balance"] > 0:
+                totals["outstanding_projects_count"] += 1
 
         totals["pending_payments_count"] += metrics["pending_milestones_count"]
         totals["pending_payments_amount"] += metrics["pending_milestones_amount"]
@@ -481,7 +486,14 @@ def _build_overview(projects: list[dict[str, Any]], currency: str | None) -> dic
     if totals["total_contract_value"] > 0:
         totals["portfolio_payment_progress"] = round((totals["total_paid"] / totals["total_contract_value"]) * 100, 2)
 
-    for key in ("pending_payments_amount", "overdue_payments_amount", "total_contract_value", "total_paid", "total_remaining"):
+    for key in (
+        "completed_revenue",
+        "pending_payments_amount",
+        "overdue_payments_amount",
+        "total_contract_value",
+        "total_paid",
+        "total_remaining",
+    ):
         totals[key] = round(totals[key], 2)
 
     return {"currency": currency, "totals": totals, "upcoming_deadlines": upcoming_deadlines}
