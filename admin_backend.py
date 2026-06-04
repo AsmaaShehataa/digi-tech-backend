@@ -125,6 +125,24 @@ def _compute_project_metrics(project: dict[str, Any]) -> dict[str, Any]:
     deadline = _parse_date(project["deadline"])
     days_remaining = (deadline - _today()).days
     deadline_state = "overdue" if days_remaining < 0 else "upcoming" if days_remaining <= 14 else "on_track"
+    effective_status = project["status"]
+    if remaining <= 0 and effective_status != "cancelled":
+        effective_status = "completed"
+
+    if effective_status == "completed":
+        deadline_state = "completed"
+        return {
+            "remaining_balance": round(remaining, 2),
+            "payment_progress": round(payment_progress, 2),
+            "days_remaining": days_remaining,
+            "deadline_state": deadline_state,
+            "pending_milestones_count": 0,
+            "pending_milestones_amount": 0.0,
+            "overdue_milestones_count": 0,
+            "overdue_milestones_amount": 0.0,
+            "next_due_milestone": None,
+            "effective_status": effective_status,
+        }
 
     overdue_milestones_count = 0
     overdue_milestones_amount = 0.0
@@ -145,10 +163,6 @@ def _compute_project_metrics(project: dict[str, Any]) -> dict[str, Any]:
 
     if unpaid:
         next_due_milestone = sorted(unpaid, key=lambda item: item["due_date"])[0]
-
-    effective_status = project["status"]
-    if remaining <= 0 and effective_status != "cancelled":
-        effective_status = "completed"
 
     return {
         "remaining_balance": round(remaining, 2),
