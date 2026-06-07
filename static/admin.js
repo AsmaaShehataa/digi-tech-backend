@@ -119,7 +119,7 @@ const renderMilestoneRow = (milestone, currencyCode) => {
     </span>`;
 };
 
-const renderProjects = (projects) => {
+const renderProjects = (projects, overview) => {
   if (!projects.length) {
     projectsTableBody.innerHTML = `
       <tr>
@@ -129,7 +129,17 @@ const renderProjects = (projects) => {
     return;
   }
 
-  projectsTableBody.innerHTML = projects
+  const totals = overview?.totals || {};
+  const currencyCode = overview?.currency || "USD";
+  const totalContractValue =
+    Number(totals.total_contract_value) || projects.reduce((sum, project) => sum + Number(project.total_price || 0), 0);
+  const totalPaidAmount =
+    Number(totals.total_paid) || projects.reduce((sum, project) => sum + Number(project.paid_amount || 0), 0);
+  const totalRemainingAmount =
+    Number(totals.total_remaining) ||
+    projects.reduce((sum, project) => sum + Number(project.metrics?.remaining_balance || 0), 0);
+
+  const rowsHtml = projects
     .map((project) => {
       const metrics = project.metrics;
       const isCompleted = metrics.effective_status === "completed" || project.status === "completed";
@@ -178,20 +188,36 @@ const renderProjects = (projects) => {
       `;
     })
     .join("");
+
+  const totalsRowHtml = `
+    <tr class="totals-row">
+      <td colspan="3">
+        <p class="project-main">Portfolio Total</p>
+        <p class="project-sub">${projects.length} project(s)</p>
+      </td>
+      <td>
+        <p class="project-main">${formatCurrency(totalContractValue, currencyCode)}</p>
+        <p class="project-sub">Paid: ${formatCurrency(totalPaidAmount, currencyCode)} • Remaining: ${formatCurrency(totalRemainingAmount, currencyCode)}</p>
+      </td>
+      <td colspan="3">
+        <p class="project-sub">Aggregated totals across all listed projects.</p>
+      </td>
+    </tr>
+  `;
+
+  projectsTableBody.innerHTML = rowsHtml + totalsRowHtml;
 };
 
 const renderOverview = (overview) => {
   const totals = overview.totals;
   const currencyCode = overview.currency || "USD";
-  const completedRevenue =
-    totals.completed_revenue ??
-    cachedProjects
-      .filter((project) => project.metrics?.effective_status === "completed" || project.status === "completed")
-      .reduce((sum, project) => sum + Number(project.paid_amount || 0), 0);
+  const totalRevenue =
+    Number(totals.total_contract_value) ||
+    cachedProjects.reduce((sum, project) => sum + Number(project.total_price || 0), 0);
   totalProjectsEl.textContent = totals.total_projects;
   activeProjectsEl.textContent = totals.active_projects;
   completedProjectsEl.textContent = totals.completed_projects;
-  completedRevenueEl.textContent = formatCurrency(completedRevenue, currencyCode);
+  completedRevenueEl.textContent = formatCurrency(totalRevenue, currencyCode);
   pendingPaymentsEl.textContent = `${totals.pending_payments_count} (${formatCurrency(totals.pending_payments_amount, currencyCode)})`;
   overduePaymentsEl.textContent = `${totals.overdue_payments_count} (${formatCurrency(totals.overdue_payments_amount, currencyCode)})`;
   portfolioProgressEl.textContent = `${totals.portfolio_payment_progress}%`;
@@ -233,7 +259,7 @@ const refreshDashboard = async () => {
   const [overview, projects] = await Promise.all([fetchOverview(), fetchProjects()]);
   cachedProjects = projects;
   renderOverview(overview);
-  renderProjects(projects);
+  renderProjects(projects, overview);
 };
 
 const enterEditMode = (projectId) => {

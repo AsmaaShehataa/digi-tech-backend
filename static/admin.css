@@ -446,6 +446,11 @@ th {
   flex-wrap: wrap;
 }
 
+.totals-row td {
+  background: rgba(93, 157, 255, 0.08);
+  border-top: 1px solid rgba(93, 157, 255, 0.35);
+}
+
 @media (max-width: 1200px) {
   .metrics-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
