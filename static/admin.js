@@ -42,6 +42,15 @@ const getCurrencyFormatter = (currencyCode) => {
 
 const formatCurrency = (value, currencyCode) => getCurrencyFormatter(currencyCode).format(Number(value || 0));
 
+const resolveDashboardCurrency = (overview, projects) => {
+  if (overview?.currency) return overview.currency;
+  const projectCurrencies = new Set(projects.map((project) => project.currency).filter(Boolean));
+  if (projectCurrencies.size === 1) {
+    return [...projectCurrencies][0];
+  }
+  return "USD";
+};
+
 const statusLabelMap = {
   planned: "Planned",
   in_progress: "In progress",
@@ -130,10 +139,10 @@ const renderProjects = (projects, overview) => {
   }
 
   const totals = overview?.totals || {};
-  const currencyCode = overview?.currency || "USD";
+  const currencyCode = resolveDashboardCurrency(overview, projects);
   const totalContractValue =
     Number(totals.total_contract_value) || projects.reduce((sum, project) => sum + Number(project.total_price || 0), 0);
-  const totalPaidAmount =
+  const totalRevenueAmount =
     Number(totals.total_paid) || projects.reduce((sum, project) => sum + Number(project.paid_amount || 0), 0);
   const totalRemainingAmount =
     Number(totals.total_remaining) ||
@@ -196,11 +205,11 @@ const renderProjects = (projects, overview) => {
         <p class="project-sub">${projects.length} project(s)</p>
       </td>
       <td>
-        <p class="project-main">${formatCurrency(totalContractValue, currencyCode)}</p>
-        <p class="project-sub">Paid: ${formatCurrency(totalPaidAmount, currencyCode)} • Remaining: ${formatCurrency(totalRemainingAmount, currencyCode)}</p>
+        <p class="project-main">${formatCurrency(totalRevenueAmount, currencyCode)}</p>
+        <p class="project-sub">Contracted: ${formatCurrency(totalContractValue, currencyCode)} • Remaining: ${formatCurrency(totalRemainingAmount, currencyCode)}</p>
       </td>
       <td colspan="3">
-        <p class="project-sub">Aggregated totals across all listed projects.</p>
+        <p class="project-sub">Revenues are counted from paid amounts only.</p>
       </td>
     </tr>
   `;
@@ -210,15 +219,17 @@ const renderProjects = (projects, overview) => {
 
 const renderOverview = (overview) => {
   const totals = overview.totals;
-  const currencyCode = overview.currency || "USD";
+  const currencyCode = resolveDashboardCurrency(overview, cachedProjects);
   const totalRevenue =
-    Number(totals.total_contract_value) ||
-    cachedProjects.reduce((sum, project) => sum + Number(project.total_price || 0), 0);
+    Number(totals.total_paid) || cachedProjects.reduce((sum, project) => sum + Number(project.paid_amount || 0), 0);
+  const pendingBalance =
+    Number(totals.total_remaining) ||
+    cachedProjects.reduce((sum, project) => sum + Number(project.metrics?.remaining_balance || 0), 0);
   totalProjectsEl.textContent = totals.total_projects;
   activeProjectsEl.textContent = totals.active_projects;
   completedProjectsEl.textContent = totals.completed_projects;
   completedRevenueEl.textContent = formatCurrency(totalRevenue, currencyCode);
-  pendingPaymentsEl.textContent = `${totals.pending_payments_count} (${formatCurrency(totals.pending_payments_amount, currencyCode)})`;
+  pendingPaymentsEl.textContent = formatCurrency(pendingBalance, currencyCode);
   overduePaymentsEl.textContent = `${totals.overdue_payments_count} (${formatCurrency(totals.overdue_payments_amount, currencyCode)})`;
   portfolioProgressEl.textContent = `${totals.portfolio_payment_progress}%`;
 
