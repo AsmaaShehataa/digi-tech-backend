@@ -21,22 +21,27 @@ Admin module is **disabled** in public mode and returns `404`.
 
 - `APP_DEPLOY_TARGET=public`
 - `FLASK_SECRET_KEY=<strong-secret>`
-- `PUBLIC_API_ALLOWED_ORIGINS=<frontend-domain-allowlist or *>`
-  - Example: `https://www.digi-tech.com,https://digi-tech.com`
+- `DATABASE_URL=<postgres-connection-string>`
 
 Optional:
 
 - `ADMIN_EMAIL` / `ADMIN_PASSWORD` are ignored in public mode.
-- `PUBLIC_API_ALLOW_CREDENTIALS=1` (only when required)
 
 ### Internal admin service env
 
 - `APP_DEPLOY_TARGET=admin_internal`
 - `FLASK_SECRET_KEY=<strong-secret>`
+- `DATABASE_URL=<postgres-connection-string>`
 - `ADMIN_EMAIL=<admin email>`
 - `ADMIN_PASSWORD=<admin password>` or `ADMIN_PASSWORD_HASH=<hash>`
 - `ADMIN_ALLOWED_IPS=<comma-separated CIDRs>`
   - Example: `203.0.113.44/32,198.51.100.0/24`
+
+### Database backend behavior
+
+- If `DATABASE_URL` is set, app uses PostgreSQL (recommended for Render and production).
+- If `DATABASE_URL` is not set, app falls back to local SQLite (`data/admin_dashboard.db`).
+- Render free web service filesystem is ephemeral, so SQLite should be used for local/dev only.
 
 ## Public API routes
 
@@ -67,7 +72,6 @@ Reference configs are provided in:
 
 - `deploy/hostinger/nginx-public.conf`
 - `deploy/hostinger/nginx-admin-internal.conf`
-- `deploy/hostinger/backend-standalone.env.example`
 
 ## systemd setup
 
