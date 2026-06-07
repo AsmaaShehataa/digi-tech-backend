@@ -128,6 +128,24 @@ def _compute_project_metrics(project: dict[str, Any]) -> dict[str, Any]:
     deadline = _parse_date(project["deadline"])
     days_remaining = (deadline - _today()).days
     deadline_state = "overdue" if days_remaining < 0 else "upcoming" if days_remaining <= 14 else "on_track"
+    effective_status = project["status"]
+    if remaining <= 0 and effective_status != "cancelled":
+        effective_status = "completed"
+
+    # Completed projects should not appear as overdue/pending in dashboard metrics.
+    if effective_status == "completed":
+        return {
+            "remaining_balance": round(remaining, 2),
+            "payment_progress": round(payment_progress, 2),
+            "days_remaining": days_remaining,
+            "deadline_state": "completed",
+            "pending_milestones_count": 0,
+            "pending_milestones_amount": 0.0,
+            "overdue_milestones_count": 0,
+            "overdue_milestones_amount": 0.0,
+            "next_due_milestone": None,
+            "effective_status": effective_status,
+        }
 
     overdue_milestones_count = 0
     overdue_milestones_amount = 0.0
@@ -148,10 +166,6 @@ def _compute_project_metrics(project: dict[str, Any]) -> dict[str, Any]:
 
     if unpaid:
         next_due_milestone = sorted(unpaid, key=lambda item: item["due_date"])[0]
-
-    effective_status = project["status"]
-    if remaining <= 0 and effective_status != "cancelled":
-        effective_status = "completed"
 
     return {
         "remaining_balance": round(remaining, 2),
@@ -520,6 +534,7 @@ def _build_overview(projects: list[dict[str, Any]], currency: str | None) -> dic
         "total_projects": len(projects),
         "active_projects": 0,
         "completed_projects": 0,
+        "completed_revenue": 0.0,
         "pending_payments_count": 0,
         "pending_payments_amount": 0.0,
         "overdue_payments_count": 0,
@@ -540,6 +555,7 @@ def _build_overview(projects: list[dict[str, Any]], currency: str | None) -> dic
 
         if metrics["effective_status"] == "completed":
             totals["completed_projects"] += 1
+            totals["completed_revenue"] += project["paid_amount"]
         elif metrics["effective_status"] != "cancelled":
             totals["active_projects"] += 1
 
@@ -563,7 +579,14 @@ def _build_overview(projects: list[dict[str, Any]], currency: str | None) -> dic
     if totals["total_contract_value"] > 0:
         totals["portfolio_payment_progress"] = round((totals["total_paid"] / totals["total_contract_value"]) * 100, 2)
 
-    for key in ("pending_payments_amount", "overdue_payments_amount", "total_contract_value", "total_paid", "total_remaining"):
+    for key in (
+        "completed_revenue",
+        "pending_payments_amount",
+        "overdue_payments_amount",
+        "total_contract_value",
+        "total_paid",
+        "total_remaining",
+    ):
         totals[key] = round(totals[key], 2)
 
     return {"currency": currency, "totals": totals, "upcoming_deadlines": upcoming_deadlines}
