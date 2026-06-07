@@ -148,7 +148,7 @@ h1 {
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0.8rem;
 }
 
@@ -169,9 +169,10 @@ h1 {
 
 .metric-value {
   margin: 0.55rem 0 0;
-  font-size: 1.55rem;
+  font-size: clamp(1.2rem, 2.4vw, 1.55rem);
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .metric-value.danger {
@@ -453,7 +454,7 @@ th {
 
 @media (max-width: 1200px) {
   .metrics-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   }
 
   .layout-grid {
